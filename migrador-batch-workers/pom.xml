@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>prodesp.bio</groupId>
+        <artifactId>migrador-iirgd</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>migrador-batch-workers</artifactId>
+    <name>Migrador Batch Data Plane</name>
+    <description>Readers, Processors, Writers - Execução do processamento</description>
+
+    <dependencies>
+        <!-- Internal modules -->
+        <dependency>
+            <groupId>prodesp.bio</groupId>
+            <artifactId>migrador-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>prodesp.bio</groupId>
+            <artifactId>migrador-infrastructure</artifactId>
+        </dependency>
+
+        <!-- Spring Batch -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-batch</artifactId>
+        </dependency>
+
+        <!-- Caffeine Cache (local cache per thread) -->
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+</project>

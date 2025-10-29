@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>prodesp.bio</groupId>
+        <artifactId>migrador-iirgd</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>migrador-batch-control</artifactId>
+    <name>Migrador Batch Control Plane</name>
+    <description>Coordenação, particionamento, métricas e job orchestration</description>
+
+    <dependencies>
+        <!-- Internal modules -->
+        <dependency>
+            <groupId>prodesp.bio</groupId>
+            <artifactId>migrador-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>prodesp.bio</groupId>
+            <artifactId>migrador-infrastructure</artifactId>
+        </dependency>
+
+        <!-- Spring Batch -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-batch</artifactId>
+        </dependency>
+
+        <!-- Redis para JobRepository -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+
+        <!-- Micrometer Prometheus -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+</project>
