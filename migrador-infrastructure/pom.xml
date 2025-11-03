@@ -16,49 +16,160 @@
     <description>Configurações de Redis, SQL Server, ElasticSearch e Repositories</description>
 
     <dependencies>
-        <!-- Core module -->
+        <!-- ============================================ -->
+        <!-- MÓDULO INTERNO                               -->
+        <!-- ============================================ -->
         <dependency>
             <groupId>prodesp.bio</groupId>
             <artifactId>migrador-core</artifactId>
         </dependency>
 
-        <!-- Spring Boot -->
+        <!-- ============================================ -->
+        <!-- SPRING BOOT STARTERS                         -->
+        <!-- ============================================ -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
+
+        <!-- Redis - Lettuce -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
+
+        <!-- Cache -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
 
-        <!-- SQL Server -->
+        <!-- ============================================ -->
+        <!-- REDIS - REDISSON (LOCKS DISTRIBUÍDOS)        -->
+        <!-- ============================================ -->
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson-spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- ============================================ -->
+        <!-- CACHE - CAFFEINE                             -->
+        <!-- ============================================ -->
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${jackson-datatype.version}</version>
+        </dependency>
+
+        <!-- ============================================ -->
+        <!-- BANCO DE DADOS                               -->
+        <!-- ============================================ -->
+
+        <!-- SQL Server JDBC Driver -->
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
         </dependency>
 
-        <!-- ElasticSearch -->
-        <dependency>
-            <groupId>org.elasticsearch.client</groupId>
-            <artifactId>elasticsearch-rest-high-level-client</artifactId>
-        </dependency>
-
-        <!-- HikariCP -->
+        <!-- HikariCP (já vem no spring-boot-starter-data-jpa) -->
+        <!-- Declaração explícita opcional -->
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
         </dependency>
 
-        <!-- Lombok -->
+        <!-- ============================================ -->
+        <!-- ELASTICSEARCH 7.17.18                        -->
+        <!-- Use APENAS High Level REST Client para 7.x   -->
+        <!-- ============================================ -->
+
+        <!-- High Level REST Client (API principal para 7.x) -->
+        <dependency>
+            <groupId>co.elastic.clients</groupId>
+            <artifactId>elasticsearch-java</artifactId>
+            <version>${elasticsearch.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.elasticsearch.client</groupId>
+                    <artifactId>elasticsearch-rest-client</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- Core Elasticsearch (incluso automaticamente, mas explícito para compatibilidade) -->
+        <dependency>
+            <groupId>org.elasticsearch.client</groupId>
+            <artifactId>elasticsearch-rest-client</artifactId>
+            <version>${elasticsearch.version}</version>
+        </dependency>
+
+        <!-- Apache Commons (útil para stack traces, etc) -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+
+        <!-- ============================================ -->
+        <!-- DESENVOLVIMENTO                              -->
+        <!-- ============================================ -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
+        </dependency>
+
+        <!-- ============================================ -->
+        <!-- TESTES                                       -->
+        <!-- ============================================ -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Testcontainers para Redis -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Testcontainers para Elasticsearch -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>elasticsearch</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Embedded Redis para testes -->
+        <dependency>
+            <groupId>it.ozimov</groupId>
+            <artifactId>embedded-redis</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-batch</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.batch</groupId>
+            <artifactId>spring-batch-test</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

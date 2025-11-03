@@ -38,6 +38,13 @@
             <artifactId>caffeine</artifactId>
         </dependency>
 
+        <!-- JDBC Drivers -->
+        <!-- Microsoft SQL Server JDBC Driver -->
+        <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
+        </dependency>
+
         <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>

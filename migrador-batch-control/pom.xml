@@ -21,6 +21,7 @@
             <groupId>prodesp.bio</groupId>
             <artifactId>migrador-core</artifactId>
         </dependency>
+
         <dependency>
             <groupId>prodesp.bio</groupId>
             <artifactId>migrador-infrastructure</artifactId>
@@ -30,12 +31,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-batch</artifactId>
-        </dependency>
-
-        <!-- Redis para JobRepository -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
 
         <!-- Micrometer Prometheus -->
@@ -49,6 +44,16 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

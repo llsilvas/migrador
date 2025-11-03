@@ -1,0 +1,138 @@
+# ============================================
+# JVM OPTIONS - PRODUCTION (Virtual Threads)
+# ============================================
+# Otimizado para: Java 21, Virtual Threads, I/O-bound workload
+# Aplicação: Migrador IIRGD com 100 partições, 70M registros
+# Hardware recomendado: 16+ cores, 32GB+ RAM
+
+# ============================================
+# HEAP MEMORY
+# ============================================
+# Para 70M registros com chunk de 1000:
+# - Estimativa: ~16GB heap (dados + overhead Spring Batch)
+# - Manter Xms = Xmx para evitar resizing durante execução
+
+-Xms16g
+-Xmx16g
+
+# ============================================
+# GARBAGE COLLECTOR - ZGC (Generational)
+# ============================================
+# Por quê ZGC:
+# - Latência sub-milisegundo (crítico para I/O-bound)
+# - Escala para heaps grandes (16GB+)
+# - Generational ZGC (Java 21+) = melhor throughput
+# - Pausas independentes do tamanho do heap
+
+-XX:+UseZGC
+-XX:+ZGenerational
+
+# ZGC Tuning
+-XX:ZAllocationSpikeTolerance=5
+-XX:ZCollectionInterval=5
+-XX:ZFragmentationLimit=25
+
+# ============================================
+# METASPACE (Spring Boot + Batch)
+# ============================================
+# Spring Boot carrega muitas classes
+# Batch cria proxies dinâmicos para listeners
+
+-XX:MetaspaceSize=512m
+-XX:MaxMetaspaceSize=1g
+
+# ============================================
+# VIRTUAL THREADS TUNING
+# ============================================
+# Carrier threads = threads da plataforma que executam virtual threads
+# Default: número de cores
+# Aumentar para I/O-bound workload (muito bloqueio)
+
+# Paralelismo: quantos carrier threads (cores lógicos)
+# Ajustar baseado no hardware: 16, 32, 64, etc.
+-Djdk.virtualThreadScheduler.parallelism=32
+
+# Pool máximo de carrier threads
+# Permitir expansão durante picos de I/O
+-Djdk.virtualThreadScheduler.maxPoolSize=64
+
+# ============================================
+# DIRECT MEMORY (NIO / Elasticsearch Client)
+# ============================================
+# RestClient usa NIO buffers para HTTP
+# Aumentar para suportar 100+ conexões simultâneas
+
+-XX:MaxDirectMemorySize=2g
+
+# ============================================
+# PERFORMANCE FLAGS
+# ============================================
+# AlwaysPreTouch: alocar heap no startup (evita page faults)
+-XX:+AlwaysPreTouch
+
+# UseStringDeduplication: economizar memória com strings duplicadas
+# (muitos IDs, JSONs similares)
+-XX:+UseStringDeduplication
+
+# UseCompressedOops: ponteiros comprimidos até 32GB heap
+-XX:+UseCompressedOops
+
+# TieredCompilation: compilação JIT em camadas
+-XX:+TieredCompilation
+-XX:TieredStopAtLevel=4
+
+# ============================================
+# THREAD STACK SIZE
+# ============================================
+# Virtual threads usam stacks menores (~1MB vs 1KB)
+# Manter stack padrão para platform threads (carrier threads)
+
+-Xss1m
+
+# ============================================
+# GC LOGGING (Performance Monitoring)
+# ============================================
+# Logs detalhados para análise de performance
+
+-Xlog:gc*:file=logs/gc.log:time,uptime,level,tags:filecount=5,filesize=100M
+-Xlog:gc+heap=debug
+-Xlog:safepoint:file=logs/safepoint.log:time,uptime,level,tags
+
+# ============================================
+# JMX (Monitoring)
+# ============================================
+# Habilitar JMX para monitoramento remoto
+
+-Dcom.sun.management.jmxremote
+-Dcom.sun.management.jmxremote.port=9010
+-Dcom.sun.management.jmxremote.local.only=false
+-Dcom.sun.management.jmxremote.authenticate=false
+-Dcom.sun.management.jmxremote.ssl=false
+
+# ============================================
+# FLIGHT RECORDER (Profiling)
+# ============================================
+# JDK Flight Recorder para análise de performance
+# Overhead mínimo (~1%)
+
+-XX:StartFlightRecording=dumponexit=true,filename=logs/migrador-jfr.jfr
+
+# ============================================
+# CRASH DUMPS
+# ============================================
+-XX:+HeapDumpOnOutOfMemoryError
+-XX:HeapDumpPath=logs/heap-dump.hprof
+-XX:ErrorFile=logs/hs_err_pid%p.log
+
+# ============================================
+# OUTROS
+# ============================================
+# ExitOnOutOfMemoryError: finalizar JVM em caso de OOM
+# (melhor que ficar travado)
+-XX:+ExitOnOutOfMemoryError
+
+# Encoding
+-Dfile.encoding=UTF-8
+
+# Timezone
+-Duser.timezone=America/Sao_Paulo

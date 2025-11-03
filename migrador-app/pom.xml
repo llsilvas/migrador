@@ -44,6 +44,19 @@
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
+
+        <!-- H2 Database para Spring Batch metadata em testes -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- JDBC -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -53,6 +66,21 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <mainClass>prodesp.bio.migrador.MigradorApplication</mainClass>
+                    <!-- JVM flags otimizadas para Virtual Threads -->
+                    <jvmArguments>
+                        -Xms4g -Xmx4g
+                        -XX:+UseG1GC
+                        -XX:MaxGCPauseMillis=200
+                        -Djdk.virtualThreadScheduler.parallelism=16
+                        -Djdk.virtualThreadScheduler.maxPoolSize=32
+                        -XX:MaxDirectMemorySize=1g
+                        -XX:MetaspaceSize=256m
+                        -XX:MaxMetaspaceSize=512m
+                        -XX:+UseStringDeduplication
+                        -XX:+UseCompressedOops
+                        -Dfile.encoding=UTF-8
+                        -Duser.timezone=America/Sao_Paulo
+                    </jvmArguments>
                 </configuration>
             </plugin>
         </plugins>

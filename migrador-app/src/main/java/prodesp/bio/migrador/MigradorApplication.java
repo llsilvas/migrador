@@ -8,7 +8,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
     "prodesp.bio.migrador.core",
     "prodesp.bio.migrador.infra",
     "prodesp.bio.migrador.batch.control",
-    "prodesp.bio.migrador.batch.workers"
+    "prodesp.bio.migrador.batch.workers",
+    "prodesp.bio.migrador.controller"
 })
 @EnableScheduling
 public class MigradorApplication {

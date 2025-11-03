@@ -1,0 +1,81 @@
+# ============================================
+# JVM OPTIONS - DEVELOPMENT (Virtual Threads)
+# ============================================
+# Otimizado para: Testes locais, 100k registros
+# Hardware: Laptop/Desktop (8+ cores, 16GB RAM)
+
+# ============================================
+# HEAP MEMORY (Menor para testes)
+# ============================================
+-Xms4g
+-Xmx4g
+
+# ============================================
+# GARBAGE COLLECTOR - G1GC
+# ============================================
+# G1GC: melhor para desenvolvimento/debug
+# - Logs mais legíveis que ZGC
+# - Comportamento mais previsível
+
+-XX:+UseG1GC
+
+# G1 Tuning
+-XX:MaxGCPauseMillis=200
+-XX:G1HeapRegionSize=16m
+-XX:InitiatingHeapOccupancyPercent=45
+
+# ============================================
+# METASPACE
+# ============================================
+-XX:MetaspaceSize=256m
+-XX:MaxMetaspaceSize=512m
+
+# ============================================
+# VIRTUAL THREADS TUNING
+# ============================================
+# Menor paralelismo para desenvolvimento local
+
+-Djdk.virtualThreadScheduler.parallelism=16
+-Djdk.virtualThreadScheduler.maxPoolSize=32
+
+# ============================================
+# DIRECT MEMORY
+# ============================================
+-XX:MaxDirectMemorySize=1g
+
+# ============================================
+# PERFORMANCE FLAGS
+# ============================================
+-XX:+UseStringDeduplication
+-XX:+UseCompressedOops
+-XX:+TieredCompilation
+
+# ============================================
+# THREAD STACK SIZE
+# ============================================
+-Xss1m
+
+# ============================================
+# GC LOGGING (Simples)
+# ============================================
+-Xlog:gc*:file=logs/gc-dev.log:time,level,tags:filecount=3,filesize=50M
+
+# ============================================
+# CRASH DUMPS
+# ============================================
+-XX:+HeapDumpOnOutOfMemoryError
+-XX:HeapDumpPath=logs/heap-dump-dev.hprof
+
+# ============================================
+# DEBUG (Opcional - descomentar se necessário)
+# ============================================
+# -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+
+# ============================================
+# OUTROS
+# ============================================
+-Dfile.encoding=UTF-8
+-Duser.timezone=America/Sao_Paulo
+
+# Spring Boot DevTools (hot reload)
+-Dspring.devtools.restart.enabled=true

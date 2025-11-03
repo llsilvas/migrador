@@ -2,31 +2,83 @@ spring:
   application:
     name: migrador-iirgd
 
-  # Redis Configuration
+  # Datasource H2 para Spring Batch metadata (testes locais)
+  datasource:
+    url: jdbc:h2:mem:batchdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+
+  # JPA Configuration
+  jpa:
+    hibernate:
+      ddl-auto: none  # Não deixar o JPA criar tabelas (Spring Batch vai criar)
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  # H2 Console (opcional para debug)
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  # Redis Configuration (usado por Spring Data Redis E Redisson)
   data:
     redis:
       host: localhost
       port: 6379
-      timeout: 10000
+      password:  # Opcional - deixar vazio para sem senha
+      database: 0
+      timeout: 10000  # Command timeout: 10s
       lettuce:
         pool:
-          max-active: 64
-          max-idle: 32
-          min-idle: 16
-          max-wait: 3000
+          # Pool otimizado para Virtual Threads (100 partições)
+          max-active: 64   # Antes: 32. Aumentado para suportar mais partições
+          max-idle: 24     # Conexões idle mantidas abertas
+          min-idle: 12     # Mínimo de conexões sempre vivas
+          max-wait: 3000   # Max wait para obter conexão do pool
 
   # Batch Configuration
   batch:
     jdbc:
-      initialize-schema: never
+      initialize-schema: always  # Criar tabelas automaticamente no H2
+      platform: h2  # Especificar plataforma H2
     job:
-      enabled: false
+      enabled: false  # Não iniciar jobs automaticamente no startup
+
+# ============================================
+# DATASOURCE SQL SERVER (Banco de Origem - IIRGD)
+# ============================================
+iirgd:
+  datasource:
+    # SQL Server Docker local
+    jdbc-url: jdbc:sqlserver://localhost:1433;databaseName=IIRGD_TEST;encrypt=false;trustServerCertificate=true
+    username: sa
+    password: Migrador@2025!Strong
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    hikari:
+      # Pool otimizado para leitura paralela (50 partições)
+      maximum-pool-size: 60      # Permite 50 partições + overhead
+      minimum-idle: 20           # Mínimo de conexões sempre prontas
+      connection-timeout: 30000  # 30s timeout para obter conexão
+      idle-timeout: 600000       # 10min idle antes de fechar
+      max-lifetime: 1800000      # 30min vida máxima da conexão
+      # SQL Server specific
+#      connection-test-query: SELECT 1
+#      pool-name: IirgdHikariPool
 
 # Server Configuration
 server:
   port: 8080
   servlet:
-    context-path: /migrador-rg
+    context-path: /migrador-iirgd
 
 # Management/Actuator
 management:
@@ -47,12 +99,57 @@ cache:
 
 # Migration Configuration
 migration:
-  partitions: 100
-  thread-pool-size: 32
-  chunk-size: 5000
+  # ============================================
+  # VIRTUAL THREADS CONFIGURATION
+  # ============================================
+  # Com virtual threads, podemos aumentar partições significativamente
+  # sem limite de platform threads. Cada partition = 1 virtual thread.
+
+  # Ambiente LOCAL (testes)
+  partitions: 50  # Antes: 10. Virtual threads permitem 5-10x mais
+  min-id: 1
+  max-id: 500000  # 500k registros para testes
+
+  # Ambiente PRODUÇÃO (descomentar quando deploy)
+  # partitions: 100  # Para 70M registros
+  # min-id: 1
+  # max-id: 70000000
+
+  # Thread pool (usado apenas no fallback platformThreadExecutor)
+  # Com virtual threads ativas, esses valores são informativos
+  thread-pool:
+    core-size: 10
+    max-size: 10
+    queue-capacity: 0
+
+  # Batch processing
+  chunk-size: 1000  # Reduzido para economizar memória
+  skip-limit: 50
+  retry-limit: 3
+  throttle-limit: 25  # Antes: 4. Controla partições simultâneas no ES
+
+  # Writer
+  writer:
+    parallel-threads: 2
+
+# Elasticsearch Configuration
+bio:
+  elastic:
+    url: ${ELASTIC_URL:http://localhost:9200}
+    user: ${ELASTIC_USER:elastic}
+    password: ${ELASTIC_PASSWORD:password}
+    connect-timeout-millis: 6000
+    socket-timeout-millis: 60000
+    # Otimização para Virtual Threads
+    max-conn-total: 200       # Antes: default ~30. Suporta 100+ partições
+    max-conn-per-route: 100   # Antes: default ~10. Conexões por nó ES
+    biometria:
+      write: biometria
 
 # Logging
 logging:
   level:
     prodesp.bio.migrador: INFO
     org.springframework.batch: INFO
+    org.springframework.jdbc: INFO
+    root: info

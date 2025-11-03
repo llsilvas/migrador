@@ -25,10 +25,14 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <!-- Versions -->
+        <!-- ============================================ -->
+        <!-- VERSÕES DE BIBLIOTECAS EXTERNAS              -->
+        <!-- (que NÃO estão no Spring Boot Parent)        -->
+        <!-- ============================================ -->
         <elasticsearch.version>7.17.18</elasticsearch.version>
-        <commons-lang3.version>3.14.0</commons-lang3.version>
-        <caffeine.version>3.1.8</caffeine.version>
+        <redisson.version>3.35.0</redisson.version>
+        <embedded-redis.version>0.7.3</embedded-redis.version>
+        <jackson-datatype.version>2.20.0</jackson-datatype.version>
     </properties>
 
     <modules>
@@ -41,7 +45,9 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- Internal modules -->
+            <!-- ============================================ -->
+            <!-- MÓDULOS INTERNOS DO PROJETO                  -->
+            <!-- ============================================ -->
             <dependency>
                 <groupId>prodesp.bio</groupId>
                 <artifactId>migrador-core</artifactId>
@@ -63,18 +69,49 @@
                 <version>${project.version}</version>
             </dependency>
 
-            <!-- ElasticSearch -->
+            <!-- ============================================ -->
+            <!-- DEPENDÊNCIAS EXTERNAS                        -->
+            <!-- (NÃO gerenciadas pelo Spring Boot Parent)    -->
+            <!-- ============================================ -->
+
+            <!-- Redisson - Locks distribuídos -->
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson-spring-boot-starter</artifactId>
+                <version>${redisson.version}</version>
+            </dependency>
+
+            <!-- Elasticsearch 7.17.18 -->
             <dependency>
                 <groupId>org.elasticsearch.client</groupId>
                 <artifactId>elasticsearch-rest-high-level-client</artifactId>
                 <version>${elasticsearch.version}</version>
             </dependency>
 
-            <!-- Apache Commons -->
             <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-lang3</artifactId>
-                <version>${commons-lang3.version}</version>
+                <groupId>org.elasticsearch</groupId>
+                <artifactId>elasticsearch</artifactId>
+                <version>${elasticsearch.version}</version>
+            </dependency>
+
+            <!-- ============================================ -->
+            <!-- TESTCONTAINERS BOM                           -->
+            <!-- Gerencia TODAS as versões do Testcontainers -->
+            <!-- ============================================ -->
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>${testcontainers.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- Embedded Redis para testes -->
+            <dependency>
+                <groupId>it.ozimov</groupId>
+                <artifactId>embedded-redis</artifactId>
+                <version>${embedded-redis.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -104,6 +141,36 @@
                             </exclude>
                         </excludes>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <configuration>
+                        <argLine>--enable-preview</argLine>
+                        <includes>
+                            <include>**/*Test.java</include>
+                            <include>**/*Tests.java</include>
+                        </includes>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <configuration>
+                        <argLine>--enable-preview</argLine>
+                        <includes>
+                            <include>**/*IT.java</include>
+                            <include>**/*IntegrationTest.java</include>
+                        </includes>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>integration-test</goal>
+                                <goal>verify</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
             </plugins>
         </pluginManagement>
